@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "216112186900",
+    "firebase_url": "https://medapp-852ea.firebaseio.com",
+    "project_id": "medapp-852ea",
+    "storage_bucket": "medapp-852ea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216112186900:android:97847bf4c95038fc",
+        "android_client_info": {
+          "package_name": "com.pc.joe.medapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "216112186900-iv7rohputvqg7d90tgabj99u97iksr06.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pc.joe.medapp",
+            "certificate_hash": "b3d50c1c296dac0fa2f29b7d8889dbb990d8ce8d"
+          }
+        },
+        {
+          "client_id": "216112186900-7e82m0t7cp7etu34mhs8ko95c9507a3b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRMm2sJ4P0tH2MNEVsYPcZvRMFllwZD5I"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "216112186900-7e82m0t7cp7etu34mhs8ko95c9507a3b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
