@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
     Intent MainMenuIntent;
     Toast yummyToast;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
                         if (dataSnapshot.exists()){
                             if(loginUser.getPassword().equals(dataSnapshot.child("password").getValue().toString())){ //Correct
                                 Log.i("Login", "User logged in successfully: User:"+loginUser.getUserName());
+
+                                loginUser.setUserType(dataSnapshot.child("type").getValue().toString());
+
                                 MainMenuIntent = new Intent(MainActivity.this, MainMenu.class);
                                 MainMenuIntent.putExtra("user", loginUser);
                                 MainActivity.this.startActivity(MainMenuIntent);

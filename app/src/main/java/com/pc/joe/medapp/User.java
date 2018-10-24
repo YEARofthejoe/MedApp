@@ -9,6 +9,7 @@ public class User implements Serializable {
     private String userName;
     private String password;
     private String emailAddress;
+    private String userType;
 
     public User(String lastName, String userName, String password, String emailAddress, String firstName) {
         this.lastName = lastName;
@@ -65,4 +66,13 @@ public class User implements Serializable {
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
     }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
 }
