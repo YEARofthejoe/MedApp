@@ -39,44 +39,53 @@ public class MainActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loginUser.setUserName(usernameEditText.getText().toString());
-                loginUser.setPassword(passwordEditText.getText().toString());
 
-                //Create database connection
-                final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                final DatabaseReference myRef = database.getReference("user/"+loginUser.getUserName());
+                loginButton.setEnabled(false);
 
-                //One time use
-                myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()){
-                            if(loginUser.getPassword().equals(dataSnapshot.child("password").getValue().toString())){ //Correct
-                                Log.i("Login", "User logged in successfully: User:"+loginUser.getUserName());
+                if (usernameEditText.getText().toString().equals("") || passwordEditText.getText().toString().equals("")) {
+                    yummyToast = Toast.makeText(getApplicationContext(), "Cannot be blank", Toast.LENGTH_LONG);
+                    yummyToast.show();
+                } else {
 
-                                loginUser.setUserType(dataSnapshot.child("type").getValue().toString());
+                    loginUser.setUserName(usernameEditText.getText().toString());
+                    loginUser.setPassword(passwordEditText.getText().toString());
 
-                                MainMenuIntent = new Intent(MainActivity.this, MainMenu.class);
-                                MainMenuIntent.putExtra("user", loginUser);
-                                MainActivity.this.startActivity(MainMenuIntent);
-                            }
-                            else{ //Username but not password
-                                Log.i("Login", "User was found, wrong password. User:"+loginUser.getUserName());
+                    //Create database connection
+                    final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    final DatabaseReference myRef = database.getReference("user/" + loginUser.getUserName());
+
+                    //One time use
+                    myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                if (loginUser.getPassword().equals(dataSnapshot.child("password").getValue().toString())) { //Correct
+                                    Log.i("Login", "User logged in successfully: User:" + loginUser.getUserName());
+
+                                    loginUser.setUserType(dataSnapshot.child("type").getValue().toString());
+
+                                    MainMenuIntent = new Intent(MainActivity.this, MainMenu.class);
+                                    MainMenuIntent.putExtra("user", loginUser);
+                                    MainActivity.this.startActivity(MainMenuIntent);
+                                } else { //Username but not password
+                                    Log.i("Login", "User was found, wrong password. User:" + loginUser.getUserName());
+                                    yummyToast = Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_LONG);
+                                    yummyToast.show();
+                                }
+                            } else { //Both wrong
+                                Log.i("Login", "User was not found, User: " + loginUser.getUserName());
                                 yummyToast = Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_LONG);
                                 yummyToast.show();
                             }
                         }
-                        else{ //Both wrong
-                            Log.i("Login", "User was not found, User: "+loginUser.getUserName());
-                            yummyToast = Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_LONG);
-                            yummyToast.show();
+
+                        @Override //Error with database
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Log.e("Login", "Issue reaching database");
                         }
-                    }
-                    @Override //Error with database
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Log.e("Login", "Issue reaching database");
-                    }
-                });
+                    });
+                }
+                loginButton.setEnabled(true);
             }
         });
     }
