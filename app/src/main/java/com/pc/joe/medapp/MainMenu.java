@@ -12,7 +12,7 @@ public class MainMenu extends AppCompatActivity {
 
     User user;
     TextView userTextView;
-    Button makeAppointmentButton,viewAppointmentButton, searchRecordsButton, reportButton, setupUserButton, logoutButton;
+    Button makeAppointmentButton,viewAppointmentButton, reportButton, setupUserButton, logoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +22,6 @@ public class MainMenu extends AppCompatActivity {
         userTextView = findViewById(R.id.loginTextView);
         makeAppointmentButton = findViewById(R.id.makeAppointmentButton);
         viewAppointmentButton = findViewById(R.id.viewAppointmentButton);
-        searchRecordsButton = findViewById(R.id.seachRecordsButton);
         reportButton = findViewById(R.id.reportButton);
         setupUserButton = findViewById(R.id.setupButton);
         logoutButton = findViewById(R.id.logoutButton);
@@ -34,25 +33,21 @@ public class MainMenu extends AppCompatActivity {
             user = (User)getIntent().getSerializableExtra("user");
             userTextView.setText("Welcome to MedApp\n"+user.getFirstName()+" "+user.getLastName());
 
-            //We log in as User but then pass the data to the correct object type
+            //Set screen up, use case so it'll be easier to add nonstandard users
             switch(user.getUserType()) {
                 case "Admin":
                     //It doesn't make sense to let admin do this
                     makeAppointmentButton.setAlpha(.5f);
-                    makeAppointmentButton.setClickable(false);
-                    break;
-                case "Patient":
-                    Log.i("User_Type", "User is a patient");
-                    break;
-                case "Doctor":
-                    Log.i("User_Type", "User is a doctor");
-                    break;
-                case "Receptionist":
-                    Log.i("User_Type", "User is a receptionist");
+                    makeAppointmentButton.setEnabled(false);
+                    Log.d("User_Type", "User is an Admin");
                     break;
                 default:
-                    Log.i("User_Type", "Something went wrong");
-                    finish();
+                    reportButton.setVisibility(View.INVISIBLE);
+                    reportButton.setEnabled(false);
+                    setupUserButton.setVisibility(View.INVISIBLE);
+                    setupUserButton.setEnabled(false);
+                    Log.d("User_Type", "User is not an Admin");
+                    break;
             }
         }
         else {
@@ -60,12 +55,22 @@ public class MainMenu extends AppCompatActivity {
             finish();
         }
 
+        //schedule
+        makeAppointmentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent appointmentSetupIntent = new Intent(MainMenu.this, ScheduleAppointments.class);
+                appointmentSetupIntent.putExtra("user", user);
+                MainMenu.this.startActivity(appointmentSetupIntent);
+            }
+        });
+
+
+        //Setup button
         setupUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent userSetupIntent;
-
-                userSetupIntent = new Intent(MainMenu.this, userSetup.class);
+                Intent userSetupIntent = new Intent(MainMenu.this, userSetup.class);
                 userSetupIntent.putExtra("user", user);
                 MainMenu.this.startActivity(userSetupIntent);
             }

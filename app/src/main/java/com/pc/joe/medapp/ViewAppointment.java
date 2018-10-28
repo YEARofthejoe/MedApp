@@ -3,7 +3,7 @@ package com.pc.joe.medapp;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class MakeAppointment extends AppCompatActivity {
+public class ViewAppointment extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

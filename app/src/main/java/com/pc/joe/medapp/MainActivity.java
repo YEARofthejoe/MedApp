@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                                     loginUser.setFirstName(dataSnapshot.child("firstName").getValue().toString());
                                     loginUser.setLastName(dataSnapshot.child("lastName").getValue().toString());
 
+                                    //pass to next screen
                                     MainMenuIntent = new Intent(MainActivity.this, MainMenu.class);
                                     MainMenuIntent.putExtra("user", loginUser);
                                     MainActivity.this.startActivity(MainMenuIntent);

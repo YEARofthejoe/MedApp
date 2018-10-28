@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainMenu" />
-        <activity android:name=".MakeAppointment" />
+        <activity android:name=".ViewAppointment" />
         <activity android:name=".ScheduleAppointments" />
         <activity android:name=".ViewRecords" />
         <activity android:name=".userSetup"></activity>

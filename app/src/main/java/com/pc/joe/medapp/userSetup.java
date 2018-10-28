@@ -27,6 +27,7 @@ public class userSetup extends AppCompatActivity {
     EditText firstNameEditText, lastNameEditText, usernameEditText, passwordEditText, departmentEditText, specialtyEditText, locationEditText;
     TextView departmentTextView, specTextView, locTextView;
     Spinner userTypeSpinner;
+    String selectedString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,13 +71,12 @@ public class userSetup extends AppCompatActivity {
         userTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 //We want to hide some stuff if it isn't right for that user type
-                String selectedString = userTypeSpinner.getSelectedItem().toString();
+                selectedString = userTypeSpinner.getSelectedItem().toString();
                 if(selectedString.equals("Patient") || selectedString.equals("Admin")) {
                     departmentEditText.setVisibility(View.INVISIBLE);
                     specialtyEditText.setVisibility(View.INVISIBLE);
                     specialtyEditText.setVisibility(View.INVISIBLE);
                     locationEditText.setVisibility(View.INVISIBLE);
-
                     departmentTextView.setVisibility(View.INVISIBLE);
                     specTextView.setVisibility(View.INVISIBLE);
                     locTextView.setVisibility(View.INVISIBLE);
@@ -88,7 +88,6 @@ public class userSetup extends AppCompatActivity {
                     specialtyEditText.setVisibility(View.VISIBLE);
                     specialtyEditText.setVisibility(View.VISIBLE);
                     locationEditText.setVisibility(View.VISIBLE);
-
                     departmentTextView.setVisibility(View.VISIBLE);
                     specTextView.setVisibility(View.VISIBLE);
                     locTextView.setVisibility(View.VISIBLE);
@@ -160,7 +159,7 @@ public class userSetup extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         //check if already there
-                        if (dataSnapshot.hasChild(usernameEditText.getText().toString())){
+                        if (dataSnapshot.child("user/").hasChild(usernameEditText.getText().toString())){
                             //we might of been blank and cancel our actual error
                             if(okToInsert = false) {
                                 usernameEditText.setError("This user already exists");
