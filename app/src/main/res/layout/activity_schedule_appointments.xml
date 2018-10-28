@@ -76,7 +76,8 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
-        android:inputType="date"
+        android:inputType="none"
+        android:clickable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.058"
         app:layout_constraintStart_toStartOf="parent"
@@ -105,7 +106,10 @@
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:inputType="textMultiLine"
-        android:singleLine="false"
+        android:singleLine="true"
+        android:maxLines="4"
+        android:minLines="4"
+        android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .!1234567890"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -116,10 +120,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="Apointment For:"
+        android:text="Patient Username:"
         app:layout_constraintBottom_toTopOf="@+id/makeNameEditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -128,7 +132,7 @@
         app:layout_constraintVertical_bias="0.955" />
 
     <Button
-        android:id="@+id/button8"
+        android:id="@+id/makeSubmitButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -138,23 +142,23 @@
         android:text="Submit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/makeNameEditText"
-        app:layout_constraintVertical_bias="0.911" />
+        app:layout_constraintVertical_bias="1.0" />
 
     <EditText
         android:id="@+id/makeNameEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="228dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:inputType="textPersonName"
         android:text="Name"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/makeReasonEditText" />
 </android.support.constraint.ConstraintLayout>
