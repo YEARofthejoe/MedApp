@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,7 +21,6 @@ public class MainActivity extends AppCompatActivity {
     Button loginButton;
     User loginUser;
     Intent MainMenuIntent;
-    Toast yummyToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +39,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 loginButton.setEnabled(false);
+                usernameEditText.setError(null);
+                passwordEditText.setError(null);
 
+                //Prevent blank inputs and null pointers
                 if (usernameEditText.getText().toString().equals("") || passwordEditText.getText().toString().equals("")) {
-                    yummyToast = Toast.makeText(getApplicationContext(), "Cannot be blank", Toast.LENGTH_LONG);
-                    yummyToast.show();
+                    usernameEditText.setError("Must be entered");
+                    passwordEditText.setError("Must be entered");
                 } else {
 
                     loginUser.setUserName(usernameEditText.getText().toString());
@@ -62,20 +63,22 @@ public class MainActivity extends AppCompatActivity {
                                 if (loginUser.getPassword().equals(dataSnapshot.child("password").getValue().toString())) { //Correct
                                     Log.i("Login", "User logged in successfully: User:" + loginUser.getUserName());
 
+                                    //Set some values about the user from database
                                     loginUser.setUserType(dataSnapshot.child("type").getValue().toString());
+                                    loginUser.setFirstName(dataSnapshot.child("firstName").getValue().toString());
+                                    loginUser.setLastName(dataSnapshot.child("lastName").getValue().toString());
 
                                     MainMenuIntent = new Intent(MainActivity.this, MainMenu.class);
                                     MainMenuIntent.putExtra("user", loginUser);
                                     MainActivity.this.startActivity(MainMenuIntent);
                                 } else { //Username but not password
                                     Log.i("Login", "User was found, wrong password. User:" + loginUser.getUserName());
-                                    yummyToast = Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_LONG);
-                                    yummyToast.show();
+                                    passwordEditText.setError("Check password");
                                 }
                             } else { //Both wrong
                                 Log.i("Login", "User was not found, User: " + loginUser.getUserName());
-                                yummyToast = Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_LONG);
-                                yummyToast.show();
+                                usernameEditText.setError("E-mail was not found");
+                                passwordEditText.setError("Incorrect password");
                             }
                         }
 
