@@ -45,58 +45,58 @@ public class ScheduleAppointments extends AppCompatActivity {
         }
 
         locSpinner = findViewById(R.id.makeLocSpinner);
-        docSpinner = findViewById(R.id.makeDocSpinner);
+            docSpinner = findViewById(R.id.makeDocSpinner);
 
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference myRef = database.getReference("user/");
+            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final DatabaseReference myRef = database.getReference("user/");
 
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                locations = new ArrayList<>();
-                doctorMap = new Hashtable<>();
-                doctorsAtLocations = new ArrayList<>();
-                String location;
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    locations = new ArrayList<>();
+                    doctorMap = new Hashtable<>();
+                    doctorsAtLocations = new ArrayList<>();
+                    String location;
 
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    Log.d("My_Location", "User being checked is " + ds.getKey());
-                    //Populate doctor list based on location
-                    try {
-                        if (dataSnapshot.child(ds.getKey()).child("type").getValue().equals("Doctor")) {
+                    for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                        Log.d("My_Location", "User being checked is " + ds.getKey());
+                        //Populate doctor list based on location
+                        try {
+                            if (dataSnapshot.child(ds.getKey()).child("type").getValue().equals("Doctor")) {
 
-                            location = ds.child("location").getValue().toString();
+                                location = ds.child("location").getValue().toString();
 
-                            if (!locations.contains(location) && !location.equals("")) {
-                                locations.add(location);
+                                if (!locations.contains(location) && !location.equals("")) {
+                                    locations.add(location);
+                                }
+
+                                doctorsAtLocations.clear();
+
+                                //get all the doctor users.
+                                if (doctorMap.contains(location)) {
+                                    Log.d("My_Location", ds.getKey() + " being added to existing list " + location);
+                                    doctorMap.get(location).add(ds.getKey());
+                                } else {
+                                    Log.d("My_Location", ds.getKey() + " being added to new list " + location);
+                                    doctorsAtLocations.add(ds.getKey());
+                                    doctorMap.put(location, new ArrayList<String>());
+                                    doctorMap.get(location).add(ds.getKey());
+                                }
                             }
-
-                            doctorsAtLocations.clear();
-
-                            //get all the doctor users.
-                            if (doctorMap.contains(location)) {
-                                Log.d("My_Location", ds.getKey() + " being added to existing list " + location);
-                                doctorMap.get(location).add(ds.getKey());
-                            } else {
-                                Log.d("My_Location", ds.getKey() + " being added to new list " + location);
-                                doctorsAtLocations.add(ds.getKey());
-                                doctorMap.put(location, new ArrayList<String>());
-                                doctorMap.get(location).add(ds.getKey());
-                            }
+                        } catch (Exception e){
+                            Log.d("My_Location", "User being checked is not a doctor :" + ds.getKey());
                         }
-                    } catch (Exception e){
-                        Log.d("My_Location", "User being checked is not a doctor :" + ds.getKey());
                     }
+
+                    locAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_spinner_dropdown_item, locations);
+                    locSpinner.setAdapter(locAdapter);
+
+                    doctorsAtLocations = doctorMap.get(locSpinner.getSelectedItem());
+                    spinAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_spinner_dropdown_item, doctorsAtLocations);
+                    docSpinner.setAdapter(spinAdapter);
+
+
                 }
-
-                locAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_spinner_dropdown_item, locations);
-                locSpinner.setAdapter(locAdapter);
-
-                doctorsAtLocations = doctorMap.get(locSpinner.getSelectedItem());
-                spinAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_spinner_dropdown_item, doctorsAtLocations);
-                docSpinner.setAdapter(spinAdapter);
-
-
-            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

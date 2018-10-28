@@ -65,6 +65,15 @@ public class MainMenu extends AppCompatActivity {
             }
         });
 
+        //
+        viewAppointmentButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent appointmentSetupIntent = new Intent(MainMenu.this, ViewAppointment.class);
+                appointmentSetupIntent.putExtra("user", user);
+                MainMenu.this.startActivity(appointmentSetupIntent);
+            }
+        });
 
         //Setup button
         setupUserButton.setOnClickListener(new View.OnClickListener() {
