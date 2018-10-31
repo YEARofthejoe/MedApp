@@ -44,7 +44,7 @@ public class ViewAppointment extends AppCompatActivity {
         if (extras != null) {
             //Pass login object
             user = (User) getIntent().getSerializableExtra("user");
-            userLoggedIn.setText(user.getUserType()+" "+user.getUserName());
+            userLoggedIn.setText(user.getFirstName()+" "+user.getLastName());
         } else {
             Log.e("MakeApp", "A user was not provided to class");
             finish();
@@ -63,7 +63,7 @@ public class ViewAppointment extends AppCompatActivity {
             getPatientAppointments();
         }
         else if(userType.equals("Doctor")){
-            Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
             getDoctorAppointments();
         }
 
@@ -95,7 +95,7 @@ public class ViewAppointment extends AppCompatActivity {
                         for (DataSnapshot dsuser : dsloc.getChildren()) {
                             for (DataSnapshot dstime : dsuser.getChildren()) {
                                 if (dsuser.getKey().equals(username)) {
-                                    appointment = dstime.getKey();
+                                    appointment = "Doctor: "+dstime.child("doctor").getValue()+"\nLocation: "+ dsloc.getKey()+"\nDate/Time: "+dstime.getKey();
                                     appointmentList.add(appointment);
                                 }
                             }
