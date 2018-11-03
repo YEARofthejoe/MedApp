@@ -1,5 +1,6 @@
 package com.pc.joe.medapp;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,7 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ListView;
-
+import android.widget.Button;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,11 +28,13 @@ import android.widget.Toast;
 public class ViewAppointment extends AppCompatActivity {
     User user;
     Spinner usersSpinner;
-    ArrayList<String> usersList, appointmentList;
-    ArrayAdapter<String> usersAdapter, appointmentAdapter;
+    ArrayList<Appointment> usersList, appointmentList;
+    AppointmentAdapter appointmentAdapter;
     ListView appointmentsListView;
     TextView userLoggedIn;
     String username, userType;
+    Button testButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,7 @@ public class ViewAppointment extends AppCompatActivity {
         setContentView(R.layout.activity_view_appointment);
         userLoggedIn = findViewById(R.id.currentuser);
         appointmentsListView = findViewById(R.id.appointments);
+        testButton = findViewById(R.id.test_button);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -79,6 +83,14 @@ public class ViewAppointment extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {return;}
         });*/
+        testButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent appointmentSetupIntent = new Intent(ViewAppointment.this, TestActivity.class);
+                appointmentSetupIntent.putExtra("user", user);
+                ViewAppointment.this.startActivity(appointmentSetupIntent);
+            }
+        });
     }// end OnCreate
 
     public void getPatientAppointments(){
@@ -88,21 +100,26 @@ public class ViewAppointment extends AppCompatActivity {
         appointmentTableRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                appointmentList = new ArrayList<>();
-                String appointment;
+                appointmentList = new ArrayList<Appointment>();
+                String appointment, time, doctor, status, reason, location;
                 try {
                     for (DataSnapshot dsloc : dataSnapshot.getChildren()) {
                         for (DataSnapshot dsuser : dsloc.getChildren()) {
                             for (DataSnapshot dstime : dsuser.getChildren()) {
                                 if (dsuser.getKey().equals(username)) {
                                     appointment = "Doctor: "+dstime.child("doctor").getValue()+"\nLocation: "+ dsloc.getKey()+"\nDate/Time: "+dstime.getKey();
-                                    appointmentList.add(appointment);
+                                    time = dstime.getKey();
+                                    doctor= dstime.child("doctor").getValue().toString();
+                                    location = dsloc.getKey();
+                                    status = dstime.child("status").getValue().toString();
+                                    reason = dstime.child("reason").getValue().toString();
+                                    appointmentList.add(new Appointment(time,dstime.getKey(),doctor,user.getFirstName()+" "+user.getLastName(), location, status,reason));
                                 }
                             }
 
                         }
                     }
-                    appointmentAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, appointmentList);
+                    appointmentAdapter = new AppointmentAdapter(getBaseContext(), appointmentList);
                     appointmentsListView.setAdapter(appointmentAdapter);
                 } catch (Exception e) {
                     Log.e("Data", "Error");
@@ -117,6 +134,9 @@ public class ViewAppointment extends AppCompatActivity {
         });
     }
 
+
+
+
     public void getDoctorAppointments(){
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference appointmentTableRef = database.getReference("appointment");
@@ -124,7 +144,7 @@ public class ViewAppointment extends AppCompatActivity {
         appointmentTableRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                appointmentList = new ArrayList<>();
+                appointmentList = new ArrayList<Appointment>();
                 String appointment;
                 try {
                     for (DataSnapshot dsloc : dataSnapshot.getChildren()) {
@@ -132,14 +152,14 @@ public class ViewAppointment extends AppCompatActivity {
                             for (DataSnapshot dstime : dsuser.getChildren()) {
                                 if (dstime.child("doctor").getValue().equals(username)) {
                                     appointment = "Patient: "+ dsuser.getKey()+"\nDate/Time: "+dstime.getKey()+"\nReason: "+dstime.child("reason").getValue()+"\n";
-                                    appointmentList.add(appointment);
+                                    //appointmentList.add(appointment);
                                 }
                             }
 
                         }
                     }
-                    appointmentAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, appointmentList);
-                    appointmentsListView.setAdapter(appointmentAdapter);
+                    //appointmentAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, appointmentList);
+                    //appointmentsListView.setAdapter(appointmentAdapter);
                 } catch (Exception e) {
                     Log.e("Data", "Error");
                 }
