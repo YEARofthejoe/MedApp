@@ -28,6 +28,19 @@ public class Appointment {
         this.appointmentReason = null;
     }
 
+    /*public Appointment(String date, String doctor, String location, String status){
+        this.appointmentDate = date;
+        this.appointmentDoctor = doctor;
+        this.appointmentLocation = location;
+        this.appointmentStatus = status;
+    }*/
+    public Appointment(String date, String patient, String status, String reason){
+        this.appointmentDate = date;
+        this.appointmentPatient = patient;
+        this.appointmentStatus = status;
+        this.appointmentReason = reason;
+    }
+
     public void setAppointmentDate(String date){
         this.appointmentDate = date;
     }

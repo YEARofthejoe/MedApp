@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MedApp</string>
+    <string name="view_appointments">Displaying Appointments for</string>
 </resources>

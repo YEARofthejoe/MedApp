@@ -30,11 +30,13 @@ public class ViewAppointment extends AppCompatActivity {
     Spinner usersSpinner;
     ArrayList<Appointment> usersList, appointmentList;
     AppointmentAdapter appointmentAdapter;
+    DoctorAppointmentAdapter doctorAppointmentAdapter;
+    ReceptionistAppointmentAdapter receptionistAppointmentAdapter;
     ListView appointmentsListView;
-    TextView userLoggedIn;
+    TextView userLoggedIn, loc;
     String username, userType;
     Button testButton;
-
+    String receptionistLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +44,20 @@ public class ViewAppointment extends AppCompatActivity {
         setContentView(R.layout.activity_view_appointment);
         userLoggedIn = findViewById(R.id.currentuser);
         appointmentsListView = findViewById(R.id.appointments);
-        testButton = findViewById(R.id.test_button);
+        loc = findViewById(R.id.loc);
+        //testButton = findViewById(R.id.test_button);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             //Pass login object
             user = (User) getIntent().getSerializableExtra("user");
-            userLoggedIn.setText(user.getFirstName()+" "+user.getLastName());
+            if(user.getUserType().equals("Patient"))
+                userLoggedIn.setText("Displaying Appointments for Patient: "+user.getFirstName()+" "+user.getLastName());
+            else if (user.getUserType().equals("Doctor"))
+                userLoggedIn.setText("Displaying Appointments for Doctor: "+user.getFirstName()+" "+user.getLastName());
+            else
+                getReceptionistLocation();
+                //userLoggedIn.setText("Displaying Appointments for Receptionist: "+user.getFirstName()+" "+user.getLastName()+" at location");
         } else {
             Log.e("MakeApp", "A user was not provided to class");
             finish();
@@ -70,6 +79,10 @@ public class ViewAppointment extends AppCompatActivity {
             //Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
             getDoctorAppointments();
         }
+        else if(userType.equals("Receptionist")){
+            getReceptionistAppointments();
+            //Toast.makeText(getApplicationContext(),getReceptionistLocation(),Toast.LENGTH_SHORT).show();
+        }
 
 
         /*usersSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -82,7 +95,7 @@ public class ViewAppointment extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {return;}
-        });*/
+        });
         testButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -90,7 +103,7 @@ public class ViewAppointment extends AppCompatActivity {
                 appointmentSetupIntent.putExtra("user", user);
                 ViewAppointment.this.startActivity(appointmentSetupIntent);
             }
-        });
+        }); */
     }// end OnCreate
 
     public void getPatientAppointments(){
@@ -145,21 +158,97 @@ public class ViewAppointment extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 appointmentList = new ArrayList<Appointment>();
-                String appointment;
+                String appointment, date, patient, status, reason;
                 try {
                     for (DataSnapshot dsloc : dataSnapshot.getChildren()) {
                         for (DataSnapshot dsuser : dsloc.getChildren()) {
                             for (DataSnapshot dstime : dsuser.getChildren()) {
                                 if (dstime.child("doctor").getValue().equals(username)) {
                                     appointment = "Patient: "+ dsuser.getKey()+"\nDate/Time: "+dstime.getKey()+"\nReason: "+dstime.child("reason").getValue()+"\n";
-                                    //appointmentList.add(appointment);
+                                    date = dstime.getKey().toString();
+                                    patient = dsuser.getKey().toString();
+                                    status = dstime.child("status").getValue().toString();
+                                    reason = dstime.child("reason").getValue().toString();
+                                    appointmentList.add(new Appointment(date,patient,status,reason));
                                 }
                             }
 
                         }
                     }
-                    //appointmentAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, appointmentList);
-                    //appointmentsListView.setAdapter(appointmentAdapter);
+                    doctorAppointmentAdapter = new DoctorAppointmentAdapter(getBaseContext(),appointmentList);
+                    appointmentsListView.setAdapter(doctorAppointmentAdapter);
+                } catch (Exception e) {
+                    Log.e("Data", "Error");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("Login", "Issue reaching database");
+            }
+        });
+    }
+
+    public void getReceptionistLocation(){
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference userRef = database.getReference("user/"+user.getUserName());
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try {
+                    if(dataSnapshot.exists()){
+
+                        loc.setText(dataSnapshot.child("location").getValue().toString());
+                        userLoggedIn.setText("Displaying Appointments at "+ dataSnapshot.child("location").getValue().toString() +" for Receptionist: "+user.getFirstName()+" "+user.getLastName()+" ");
+                        //Toast.makeText(getApplicationContext(), receptionistLocation,Toast.LENGTH_SHORT).show();
+
+                    }
+
+                } catch (Exception e) {
+                    Log.e("Data", "Error");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("Login", "Issue reaching database");
+            }
+        });
+    }
+
+    public void getReceptionistAppointments(){
+
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference appointmentTableRef = database.getReference("appointment");
+
+        appointmentTableRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                appointmentList = new ArrayList<Appointment>();
+                String appointment, time, doctor, status, reason, patient;
+                try {
+                    for (DataSnapshot dsloc : dataSnapshot.getChildren()) {
+                        if (dsloc.getKey().equals(loc.getText().toString())) {
+                            for (DataSnapshot dsuser : dsloc.getChildren()) {
+                                for (DataSnapshot dstime : dsuser.getChildren()) {
+                                    appointment = "Doctor: " + dstime.child("doctor").getValue() + "\nLocation: " + dsloc.getKey() + "\nDate/Time: " + dstime.getKey();
+                                    time = dstime.getKey();
+                                    doctor = dstime.child("doctor").getValue().toString();
+                                    patient = dsuser.getKey();
+                                    status = dstime.child("status").getValue().toString();
+                                    //reason = dstime.child("reason").getValue().toString();
+                                    appointmentList.add(new Appointment(time, time, doctor, patient, "", status, ""));
+
+                                }
+
+                            }
+                        }
+                    }
+                    receptionistAppointmentAdapter = new ReceptionistAppointmentAdapter(getBaseContext(), appointmentList);
+                    appointmentsListView.setAdapter(receptionistAppointmentAdapter);
                 } catch (Exception e) {
                     Log.e("Data", "Error");
                 }

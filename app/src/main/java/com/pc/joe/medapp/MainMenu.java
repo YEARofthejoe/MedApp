@@ -31,7 +31,7 @@ public class MainMenu extends AppCompatActivity {
         if (extras != null) {
             //Pass login object
             user = (User)getIntent().getSerializableExtra("user");
-            userTextView.setText("Welcome to MedApp\n"+user.getFirstName()+" "+user.getLastName());
+            userTextView.setText("Welcome to MedApp\n"+ user.getUserType()+": "+user.getFirstName()+" "+user.getLastName());
 
             //Set screen up, use case so it'll be easier to add nonstandard users
             switch(user.getUserType()) {
