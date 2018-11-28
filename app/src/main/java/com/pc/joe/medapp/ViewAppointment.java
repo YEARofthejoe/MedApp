@@ -45,7 +45,7 @@ public class ViewAppointment extends AppCompatActivity {
         userLoggedIn = findViewById(R.id.currentuser);
         appointmentsListView = findViewById(R.id.appointments);
         loc = findViewById(R.id.loc);
-        //testButton = findViewById(R.id.test_button);
+        testButton = findViewById(R.id.test_button);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -95,7 +95,7 @@ public class ViewAppointment extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {return;}
-        });
+        }); */
         testButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -103,7 +103,7 @@ public class ViewAppointment extends AppCompatActivity {
                 appointmentSetupIntent.putExtra("user", user);
                 ViewAppointment.this.startActivity(appointmentSetupIntent);
             }
-        }); */
+        });
     }// end OnCreate
 
     public void getPatientAppointments(){
