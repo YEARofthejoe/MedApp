@@ -29,7 +29,6 @@ public class TestActivity extends AppCompatActivity implements MyListAdapter.But
         quotesRecyclerView = findViewById(R.id.recycler_view);
         //Instantiating LinearLayoutManager and MyListAdapter
 
-
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference appointmentTableRef = database.getReference("appointment");
 
