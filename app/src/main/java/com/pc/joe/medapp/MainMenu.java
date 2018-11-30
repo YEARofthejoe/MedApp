@@ -85,6 +85,16 @@ public class MainMenu extends AppCompatActivity {
             }
         });
 
+        //Setup button
+        reportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent reportIntent = new Intent(MainMenu.this, ViewReports.class);
+                reportIntent.putExtra("user", user);
+                MainMenu.this.startActivity(reportIntent);
+            }
+        });
+
         //on clicks
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -16,11 +16,13 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ public class ScheduleAppointments extends AppCompatActivity {
     Spinner locSpinner, docSpinner;
     ArrayList<String> locations, doctorsAtLocations, userList;
     ArrayAdapter<String> locAdapter, spinAdapter;
-    Hashtable <String, ArrayList<String>> doctorMap;
+    Hashtable<String, ArrayList<String>> doctorMap;
     EditText dateEditText, nameEditText, reasonEditText;
     Calendar calendar;
     DatePickerDialog.OnDateSetListener date;
@@ -49,8 +51,7 @@ public class ScheduleAppointments extends AppCompatActivity {
         if (extras != null) {
             //Pass login object
             user = (User) getIntent().getSerializableExtra("user");
-        }
-        else{
+        } else {
             Log.e("MakeApp", "A user was not provided to class");
             finish();
         }
@@ -64,7 +65,7 @@ public class ScheduleAppointments extends AppCompatActivity {
         reasonEditText = findViewById(R.id.makeReasonEditText);
 
         //don't let Patient schedule for other people
-        if(user.getUserType().equals("Patient")){
+        if (user.getUserType().equals("Patient")) {
             nameEditText.setAlpha(.5f);
             nameEditText.setFocusable(false);
             nameEditText.setText(user.getUserName());
@@ -136,7 +137,7 @@ public class ScheduleAppointments extends AppCompatActivity {
                 String location;
 
                 //loop through
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     Log.d("My_Location", "User being checked is " + ds.getKey());
                     //Populate doctor list based on location
                     try {
@@ -144,7 +145,7 @@ public class ScheduleAppointments extends AppCompatActivity {
                         userString = dataSnapshot.child(ds.getKey()).child("type").getValue().toString();
 
                         //get a list of patients
-                        if(userString.equals("Patient")){
+                        if (userString.equals("Patient")) {
                             userList.add(ds.getKey());
                         }
 
@@ -159,7 +160,7 @@ public class ScheduleAppointments extends AppCompatActivity {
                             doctorsAtLocations.clear();
 
                             //get all the doctor users.
-                            if (doctorMap.contains(location)) {
+                            if (doctorMap.containsKey(location)) {
                                 Log.d("My_Location", ds.getKey() + " being added to existing list " + location);
                                 doctorMap.get(location).add(ds.getKey());
                             } else {
@@ -169,7 +170,7 @@ public class ScheduleAppointments extends AppCompatActivity {
                                 doctorMap.get(location).add(ds.getKey());
                             }
                         }
-                    } catch (Exception e){ //probably the easiest way to do this
+                    } catch (Exception e) { //probably the easiest way to do this
                         Log.d("My_Location", "User being checked is not a doctor :" + ds.getKey());
                     }
                 }
@@ -198,7 +199,9 @@ public class ScheduleAppointments extends AppCompatActivity {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {return;}
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                return;
+            }
         });
 
         //submit button logic
@@ -216,33 +219,31 @@ public class ScheduleAppointments extends AppCompatActivity {
 
                 //check the fields
                 String dateString = dateEditText.getText().toString();
-                if(dateString.equals("")){
+                if (dateString.equals("")) {
                     dateEditText.setError("Must be entered");
                     okToInsert = false;
-                }
-                else if(calendar.before(today)){
+                } else if (calendar.before(today)) {
                     dateEditText.setError("You cannot go backwards in time");
                     Toast.makeText(getApplicationContext(), "Time cannot be in the past", Toast.LENGTH_SHORT).show();
                     okToInsert = false;
                 }
 
-                if(reasonEditText.getText().toString().equals("")){
+                if (reasonEditText.getText().toString().equals("")) {
                     reasonEditText.setError("Must enter a reason");
                     okToInsert = false;
                 }
 
                 String username = nameEditText.getText().toString();
-                if(username.equals("")){
+                if (username.equals("")) {
                     okToInsert = false;
                     nameEditText.setError("Must enter a username");
-                }
-                else if(!userList.contains(username)){
+                } else if (!userList.contains(username)) {
                     okToInsert = false;
                     nameEditText.setError("Not a valid username");
                 }
 
                 //we are good to go, lets make sure doctor or patient isn't busy
-                if(okToInsert){
+                if (okToInsert) {
                     Log.i("App_setup", "All input tests passed for this appointment");
 
 
@@ -265,20 +266,25 @@ public class ScheduleAppointments extends AppCompatActivity {
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                 for (DataSnapshot ds2 : ds.getChildren()) {
                                     for (DataSnapshot ds3 : ds2.getChildren()) {
-                                        Log.i("database_print", "Appointment Name:" + ds3.getKey() + " Doctor:" + ds3.child("doctor").getValue().toString() + " Appointee:" + ds2.getKey());
-                                        if (ds3.getKey().equals(appointmentName) && ds2.getKey().equals(person)) {
-                                            Toast.makeText(getApplicationContext(), "You already have this time booked", Toast.LENGTH_SHORT).show();
-                                            okToInsert = false;
-                                        }
-                                        if (ds3.getKey().equals(appointmentName) && ds3.child("doctor").getValue().toString().equals(doc)) {
-                                            Toast.makeText(getApplicationContext(), "The doctor already has this time booked", Toast.LENGTH_SHORT).show();
-                                            okToInsert = false;
+                                        try { //we cant assume the data is ok, even tho i make it...
+                                            Log.i("database_print", "Appointment Name:" + ds3.getKey() + " Doctor:" + ds3.child("doctor").getValue().toString() + " Appointee:" + ds2.getKey());
+                                            if (ds3.getKey().equals(appointmentName) && ds2.getKey().equals(person)) {
+                                                Toast.makeText(getApplicationContext(), "You already have this time booked", Toast.LENGTH_SHORT).show();
+                                                okToInsert = false;
+                                            }
+                                            if (ds3.getKey().equals(appointmentName) && ds3.child("doctor").getValue().toString().equals(doc)) {
+                                                Toast.makeText(getApplicationContext(), "The doctor already has this time booked", Toast.LENGTH_SHORT).show();
+                                                okToInsert = false;
+                                            }
+                                        } catch (Exception e) {
+                                            //There was probably a malformed record
+                                            Log.w("data_error", "Something is wrong with the record " + ds3.getKey() + " for " + ds2.getKey() + "@" + ds.getKey());
                                         }
                                     }
                                 }
                             } //end appointment check
 
-                            if(okToInsert){
+                            if (okToInsert) {
                                 Log.i("App_setup", "All database tests passed for this appointment");
                                 locRef.child(loc).child(person).child(appointmentName).child("doctor").setValue(doc);
                                 locRef.child(loc).child(person).child(appointmentName).child("note").setValue("none");
@@ -304,34 +310,34 @@ public class ScheduleAppointments extends AppCompatActivity {
     }
 
     //For showing the user a time format they probably like
-    public static String convertTimetoAMPM(int hour, int min){
+    public static String convertTimetoAMPM(int hour, int min) {
         DateFormat dateFormat = new SimpleDateFormat("h:mm a");
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY,hour);
-        cal.set(Calendar.MINUTE,min);
-        cal.set(Calendar.SECOND,0);
-        cal.set(Calendar.MILLISECOND,0);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         Date d = cal.getTime();
 
         return dateFormat.format(d);
     }
 
     //do some rounding
-    public static int getNear15Minute(int minutes){
-        int mod = minutes%15;
-        int res = 0 ;
-        if((mod) >=8){
-            res = minutes+(15 - mod);
-        }else{
-            res = minutes-mod;
+    public static int getNear15Minute(int minutes) {
+        int mod = minutes % 15;
+        int res = 0;
+        if ((mod) >= 8) {
+            res = minutes + (15 - mod);
+        } else {
+            res = minutes - mod;
         }
-        return (res%60);
+        return (res % 60);
     }
 
     //return a useful format
-    public static String getStringDate(Calendar c){
+    public static String getStringDate(Calendar c) {
         String returnValue;
-        returnValue = (c.get(Calendar.MONTH)+1) + "";
+        returnValue = (c.get(Calendar.MONTH) + 1) + "";
         returnValue += "-" + c.get(Calendar.DAY_OF_MONTH);
         returnValue += "-" + c.get(Calendar.YEAR);
         returnValue += " : " + convertTimetoAMPM(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE));
