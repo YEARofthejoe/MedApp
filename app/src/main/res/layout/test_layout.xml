@@ -10,15 +10,21 @@
         android:layout_height="100dp"
         android:textSize="22sp" />
     <!--Line separator between list items-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#000" />
+
     <Button
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Button" />
 
-    <View
+    <Button
+        android:id="@+id/button2"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#000" />
+        android:layout_height="wrap_content"
+        android:text="Button" />
 
 </LinearLayout>

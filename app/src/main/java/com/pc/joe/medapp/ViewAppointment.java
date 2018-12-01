@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -37,16 +39,17 @@ public class ViewAppointment extends AppCompatActivity {
     String username, userType;
     Button testButton;
     String receptionistLocation;
+    RecyclerView appointmentsRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_appointment);
         userLoggedIn = findViewById(R.id.currentuser);
-        appointmentsListView = findViewById(R.id.appointments);
+        //appointmentsListView = findViewById(R.id.appointments);
         loc = findViewById(R.id.loc);
         testButton = findViewById(R.id.test_button);
-
+        appointmentsRecyclerView = findViewById(R.id.appointments_recycler_view);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             //Pass login object
@@ -72,7 +75,7 @@ public class ViewAppointment extends AppCompatActivity {
         username = user.getUserName();
         userType = user.getUserType();
         if(userType.equals("Patient")){
-            //Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
             getPatientAppointments();
         }
         else if(userType.equals("Doctor")){
@@ -98,7 +101,7 @@ public class ViewAppointment extends AppCompatActivity {
         }); */
         testButton.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View view) {
+                public void onClick(View view) {
                 Intent appointmentSetupIntent = new Intent(ViewAppointment.this, TestActivity.class);
                 appointmentSetupIntent.putExtra("user", user);
                 ViewAppointment.this.startActivity(appointmentSetupIntent);
@@ -127,13 +130,27 @@ public class ViewAppointment extends AppCompatActivity {
                                     status = dstime.child("status").getValue().toString();
                                     reason = dstime.child("reason").getValue().toString();
                                     appointmentList.add(new Appointment(time,dstime.getKey(),doctor,user.getFirstName()+" "+user.getLastName(), location, status,reason));
+                                    //Toast.makeText(getApplicationContext(), time,
+                                            //Toast.LENGTH_LONG).show();
                                 }
                             }
 
                         }
                     }
-                    appointmentAdapter = new AppointmentAdapter(getBaseContext(), appointmentList);
-                    appointmentsListView.setAdapter(appointmentAdapter);
+                    PatientViewAppointmentsAdapter appointmentListAdapter =
+                            new PatientViewAppointmentsAdapter(getApplicationContext(),
+                            appointmentList,
+                            new PatientViewAppointmentsAdapter.ButtonClickListener() {
+                                @Override
+                                public void onButtonClick(int position) {
+
+                                }
+                            });
+                    LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext(),
+                            LinearLayoutManager.VERTICAL, false);
+                    appointmentsRecyclerView.setLayoutManager(manager);
+                    appointmentsRecyclerView.setAdapter(appointmentListAdapter);
+
                 } catch (Exception e) {
                     Log.e("Data", "Error");
                 }

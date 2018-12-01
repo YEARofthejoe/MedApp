@@ -61,7 +61,14 @@ public class TestActivity extends AppCompatActivity implements MyListAdapter.But
                     // appointmentList);
                     //appointmentsListView.setAdapter(appointmentAdapter);
                     //Hooking up to RecyclerView
-                    MyListAdapter quotesListAdapter = new MyListAdapter(listOfItem);
+                    MyListAdapter quotesListAdapter = new MyListAdapter(getApplicationContext(),
+                            listOfItem,
+                            new MyListAdapter.ButtonClickListener() {
+                                @Override
+                                public void onButtonClick(int position) {
+
+                                }
+                            });
                     LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext(),
                             LinearLayoutManager.VERTICAL, false);
                     quotesRecyclerView.setLayoutManager(manager);
