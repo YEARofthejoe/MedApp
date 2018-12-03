@@ -75,7 +75,7 @@ public class ViewAppointment extends AppCompatActivity {
         username = user.getUserName();
         userType = user.getUserType();
         if(userType.equals("Patient")){
-            Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
             getPatientAppointments();
         }
         else if(userType.equals("Doctor")){

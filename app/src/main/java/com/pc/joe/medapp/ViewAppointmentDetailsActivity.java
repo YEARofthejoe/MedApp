@@ -42,7 +42,7 @@ public class ViewAppointmentDetailsActivity extends AppCompatActivity {
         if (extras != null) {
             //Pass login object
             appointmentDateTime = extras.getString("SelectedAppointment");
-            appointmentDateTimeTextView.setText(appointmentDateTime);
+            appointmentDateTimeTextView.setText("Appointment Date & Time: "+appointmentDateTime);
 
         } else {
             Log.e("MakeApp", "A user was not provided to class");
@@ -67,16 +67,16 @@ public class ViewAppointmentDetailsActivity extends AppCompatActivity {
                     for (DataSnapshot dsloc : dataSnapshot.getChildren()) {
                         for (DataSnapshot dsuser : dsloc.getChildren()) {
                             for (DataSnapshot dstime : dsuser.getChildren()) {
-                                /*Toast.makeText(getApplicationContext(),"'"+ appointmentDateTime+
-                                                "'"+ "'"+dstime.getKey()+"'",
+                                /*Toast.makeText(getApplicationContext(),
+                                        Boolean.toString(dstime.getKey().equals(appointmentDateTime)),
                                         Toast.LENGTH_LONG).show(); */
                                 if (dstime.getKey().equals(appointmentDateTime)) {
                                     reason = dstime.child("reason").getValue().toString();
-                                    notes = dstime.child("notes").getValue().toString();
+                                    notes = dstime.child("note").getValue().toString();
                                     prescription =
                                             dstime.child("prescription").getValue().toString();
-                                    Toast.makeText(getApplicationContext(), reason,
-                                            Toast.LENGTH_LONG).show();
+                                    /*Toast.makeText(getApplicationContext(), reason,
+                                            Toast.LENGTH_LONG).show(); */
 
                                 }
                             }
