@@ -22,8 +22,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class ViewAppointmentDetailsActivity extends AppCompatActivity {
-    String appointmentDateTime;
-    TextView appointmentDateTimeTextView;
+    String appointmentDateTime, userType, user;
+    TextView appointmentDateTimeTextView, appointmentUserTextView;
     EditText appointmentReasonTextView, appointmentNotesTextView, appointmentPrescriptionTextView;
     Button appointmentCancelButton, appointmentSaveButton;
     @Override
@@ -31,6 +31,7 @@ public class ViewAppointmentDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_appointment_details);
         appointmentDateTimeTextView = findViewById(R.id.selected_appointment_date_time);
+        appointmentUserTextView = findViewById(R.id.selected_appointment_user);
         appointmentReasonTextView = findViewById(R.id.selected_appointment_reason);
         appointmentNotesTextView = findViewById(R.id.selected_appointment_notes);
         appointmentPrescriptionTextView = findViewById(R.id.selected_appointment_prescription);
@@ -42,7 +43,10 @@ public class ViewAppointmentDetailsActivity extends AppCompatActivity {
         if (extras != null) {
             //Pass login object
             appointmentDateTime = extras.getString("SelectedAppointment");
+            userType = extras.getString("UserType");
+            user = extras.getString("User");
             appointmentDateTimeTextView.setText("Appointment Date & Time: "+appointmentDateTime);
+            appointmentUserTextView.setText(user);
 
         } else {
             Log.e("MakeApp", "A user was not provided to class");
@@ -88,8 +92,11 @@ public class ViewAppointmentDetailsActivity extends AppCompatActivity {
                     appointmentNotesTextView.setText(notes);
                     appointmentPrescriptionTextView.setText(prescription);
                     appointmentReasonTextView.setEnabled(false);
-                    appointmentNotesTextView.setEnabled(false);
-                    appointmentPrescriptionTextView.setEnabled(false);
+                    if(userType.equals("patient")) {
+                        appointmentNotesTextView.setEnabled(false);
+                        appointmentPrescriptionTextView.setEnabled(false);
+                        appointmentSaveButton.setEnabled(false);
+                    }
 
                 } catch (Exception e) {
                     Log.e("Data", "Error");
@@ -103,5 +110,61 @@ public class ViewAppointmentDetailsActivity extends AppCompatActivity {
             }
         });
 
+        appointmentSaveButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                saveAppointmentInformation();
+            }
+        });
+
+    }
+
+    public void saveAppointmentInformation(){
+        //Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference myRef = database.getReference("appointment/");
+        //myRef.child(aLocation).child(aUser).child(aDateTime).child(  "status").setValue("Cancelled");
+
+        //One time use
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try {
+                    for (DataSnapshot dsloc : dataSnapshot.getChildren()) {
+                        //if()
+                        for (DataSnapshot dsuser : dsloc.getChildren()) {
+                            for (DataSnapshot dstime : dsuser.getChildren()) {
+                                if (dstime.getKey().equals(appointmentDateTime)) {
+                                    Toast.makeText(getApplicationContext(), dsloc.getKey(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), dsuser.getKey(),
+                                            Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), dstime.getKey(),
+                                            Toast.LENGTH_SHORT).show();
+                                    myRef.child(dsloc.getKey()).child(dsuser.getKey()).child
+                                    (dstime.getKey()).child("note").setValue(appointmentNotesTextView.getText().toString());
+                                    myRef.child(dsloc.getKey()).child(dsuser.getKey()).child
+                                            (dstime.getKey()).child("prescription").setValue(appointmentPrescriptionTextView.getText().toString());
+                                    myRef.child(dsloc.getKey()).child(dsuser.getKey()).child
+                                            (dstime.getKey()).child("status").setValue("Completed");
+
+
+                                }
+                            }
+
+                        }
+                    }
+
+                } catch (Exception e) {
+                    Log.e("Data", "Error");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w("Message", "Something didn't work");
+            }
+        });
+        finish();
+        //startActivity(getIntent());
     }
 }

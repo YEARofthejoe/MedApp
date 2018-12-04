@@ -30,7 +30,7 @@ import android.widget.Toast;
 public class ViewAppointment extends AppCompatActivity {
     User user;
     Spinner usersSpinner;
-    ArrayList<Appointment> usersList, appointmentList;
+    ArrayList<Appointment> usersList, appointmentList, appointmentList2;
     AppointmentAdapter appointmentAdapter;
     DoctorAppointmentAdapter doctorAppointmentAdapter;
     ReceptionistAppointmentAdapter receptionistAppointmentAdapter;
@@ -48,8 +48,9 @@ public class ViewAppointment extends AppCompatActivity {
         userLoggedIn = findViewById(R.id.currentuser);
         //appointmentsListView = findViewById(R.id.appointments);
         loc = findViewById(R.id.loc);
-        testButton = findViewById(R.id.test_button);
+        //testButton = findViewById(R.id.test_button);
         appointmentsRecyclerView = findViewById(R.id.appointments_recycler_view);
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             //Pass login object
@@ -79,7 +80,7 @@ public class ViewAppointment extends AppCompatActivity {
             getPatientAppointments();
         }
         else if(userType.equals("Doctor")){
-            //Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
             getDoctorAppointments();
         }
         else if(userType.equals("Receptionist")){
@@ -87,7 +88,7 @@ public class ViewAppointment extends AppCompatActivity {
             //Toast.makeText(getApplicationContext(),getReceptionistLocation(),Toast.LENGTH_SHORT).show();
         }
 
-
+        //appointmentsRecyclerView.getRecycledViewPool().clear();
         /*usersSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -99,19 +100,19 @@ public class ViewAppointment extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {return;}
         }); */
-        testButton.setOnClickListener(new View.OnClickListener(){
+        /*testButton.setOnClickListener(new View.OnClickListener(){
             @Override
                 public void onClick(View view) {
                 Intent appointmentSetupIntent = new Intent(ViewAppointment.this, TestActivity.class);
                 appointmentSetupIntent.putExtra("user", user);
                 ViewAppointment.this.startActivity(appointmentSetupIntent);
             }
-        });
+        }); */
     }// end OnCreate
 
     public void getPatientAppointments(){
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference appointmentTableRef = database.getReference("appointment");
+        final DatabaseReference appointmentTableRef = database.getReference("appointment/");
 
         appointmentTableRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -129,7 +130,8 @@ public class ViewAppointment extends AppCompatActivity {
                                     location = dsloc.getKey();
                                     status = dstime.child("status").getValue().toString();
                                     reason = dstime.child("reason").getValue().toString();
-                                    appointmentList.add(new Appointment(time,dstime.getKey(),doctor,user.getFirstName()+" "+user.getLastName(), location, status,reason));
+                                    appointmentList.add(new Appointment(time,username,doctor,
+                                            user.getFirstName()+" "+user.getLastName(), location, status,reason));
                                     //Toast.makeText(getApplicationContext(), time,
                                             //Toast.LENGTH_LONG).show();
                                 }
@@ -169,34 +171,57 @@ public class ViewAppointment extends AppCompatActivity {
 
     public void getDoctorAppointments(){
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference appointmentTableRef = database.getReference("appointment");
+        final DatabaseReference appointmentTableRef = database.getReference("appointment/");
 
         appointmentTableRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 appointmentList = new ArrayList<Appointment>();
-                String appointment, date, patient, status, reason;
+                String appointment, date, patient, status, reason, size;
                 try {
                     for (DataSnapshot dsloc : dataSnapshot.getChildren()) {
                         for (DataSnapshot dsuser : dsloc.getChildren()) {
                             for (DataSnapshot dstime : dsuser.getChildren()) {
                                 if (dstime.child("doctor").getValue().equals(username)) {
-                                    appointment = "Patient: "+ dsuser.getKey()+"\nDate/Time: "+dstime.getKey()+"\nReason: "+dstime.child("reason").getValue()+"\n";
-                                    date = dstime.getKey().toString();
-                                    patient = dsuser.getKey().toString();
+                                    /*appointment =
+                                            "Patient: "+ dsuser.getKey()+"\nDate/Time: "+dstime
+                                            .getKey()+"\nReason: "+dstime.child("reason")
+                                            .getValue()+"\n"; */
+                                    date = dstime.getKey();
+                                    patient = dsuser.getKey();
                                     status = dstime.child("status").getValue().toString();
                                     reason = dstime.child("reason").getValue().toString();
-                                    appointmentList.add(new Appointment(date,patient,status,reason));
+                                    appointmentList.add(new Appointment(date,username,username,
+                                            patient,
+                                            dsloc.getKey()
+                                            , status,reason));
+                                    /*Toast.makeText(getApplicationContext(),
+                                            date+patient+status+reason,
+                                            Toast.LENGTH_SHORT).show(); */
                                 }
                             }
-
                         }
                     }
-                    doctorAppointmentAdapter = new DoctorAppointmentAdapter(getBaseContext(),appointmentList);
-                    appointmentsListView.setAdapter(doctorAppointmentAdapter);
+
+
                 } catch (Exception e) {
                     Log.e("Data", "Error");
                 }
+                Toast.makeText(getApplicationContext(), "Here",
+                        Toast.LENGTH_SHORT).show();
+                PatientViewAppointmentsAdapter doctorAppointmentListAdapter =
+                        new PatientViewAppointmentsAdapter(getApplicationContext(),
+                                appointmentList,
+                                new PatientViewAppointmentsAdapter.ButtonClickListener() {
+                                    @Override
+                                    public void onButtonClick(int position) {
+
+                                    }
+                                });
+                LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext(),
+                        LinearLayoutManager.VERTICAL, false);
+                appointmentsRecyclerView.setLayoutManager(manager);
+                appointmentsRecyclerView.setAdapter(doctorAppointmentListAdapter);
 
             }
 
@@ -257,18 +282,30 @@ public class ViewAppointment extends AppCompatActivity {
                                     patient = dsuser.getKey();
                                     status = dstime.child("status").getValue().toString();
                                     //reason = dstime.child("reason").getValue().toString();
-                                    appointmentList.add(new Appointment(time, time, doctor, patient, "", status, ""));
+                                    appointmentList.add(new Appointment(time, patient, patient,
+                                            patient, doctor, status, ""));
 
                                 }
 
                             }
                         }
                     }
-                    receptionistAppointmentAdapter = new ReceptionistAppointmentAdapter(getBaseContext(), appointmentList);
-                    appointmentsListView.setAdapter(receptionistAppointmentAdapter);
                 } catch (Exception e) {
                     Log.e("Data", "Error");
                 }
+                PatientViewAppointmentsAdapter receptionistAppointmentListAdapter =
+                        new PatientViewAppointmentsAdapter(getApplicationContext(),
+                                appointmentList,
+                                new PatientViewAppointmentsAdapter.ButtonClickListener() {
+                                    @Override
+                                    public void onButtonClick(int position) {
+
+                                    }
+                                });
+                LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext(),
+                        LinearLayoutManager.VERTICAL, false);
+                appointmentsRecyclerView.setLayoutManager(manager);
+                appointmentsRecyclerView.setAdapter(receptionistAppointmentListAdapter);
 
             }
 

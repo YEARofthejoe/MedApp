@@ -10,7 +10,8 @@
         android:supportsRtl="true"
         android:theme="@style/Base.Theme.AppCompat"
         android:windowSoftInputMode="adjustNothing">
-        <activity android:name=".ViewAppointmentDetailsActivity"></activity>
+        <activity android:name=".DoctorViewAppointmentActivity"></activity>
+        <activity android:name=".ViewAppointmentDetailsActivity" />
         <activity android:name=".TestActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
