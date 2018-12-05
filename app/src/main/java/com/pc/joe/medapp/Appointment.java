@@ -8,15 +8,18 @@ public class Appointment {
     private String appointmentLocation;
     private String appointmentStatus;
     private String appointmentReason;
+    private String userType;
 
-    public Appointment(String date, String time, String doctor, String patient, String location, String status, String reason){
+    public Appointment(String date, String username, String doctor, String patient, String location,
+                       String status, String reason, String userType){
         this.appointmentDate = date;
-        this.appointmentTime = time;
+        this.appointmentTime = username;
         this.appointmentDoctor = doctor;
         this.appointmentPatient = patient;
         this.appointmentLocation = location;
         this.appointmentStatus = status;
         this.appointmentReason = reason;
+        this.userType = userType;
     }
     public Appointment(){
         this.appointmentDate = null;
@@ -47,4 +50,6 @@ public class Appointment {
     public String getAppointmentStatus(){return this.appointmentStatus;}
     public void setAppointmentReason(String reason){this.appointmentReason=reason;}
     public String getAppointmentReason(){return this.appointmentReason;}
+    public void setUserType(String userType){this.userType=userType;}
+    public String getUserType(){return this.userType;}
 }

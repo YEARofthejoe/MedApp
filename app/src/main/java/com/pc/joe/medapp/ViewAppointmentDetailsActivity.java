@@ -92,7 +92,7 @@ public class ViewAppointmentDetailsActivity extends AppCompatActivity {
                     appointmentNotesTextView.setText(notes);
                     appointmentPrescriptionTextView.setText(prescription);
                     appointmentReasonTextView.setEnabled(false);
-                    if(userType.equals("patient")) {
+                    if(userType.equals("Patient")) {
                         appointmentNotesTextView.setEnabled(false);
                         appointmentPrescriptionTextView.setEnabled(false);
                         appointmentSaveButton.setEnabled(false);
@@ -135,17 +135,21 @@ public class ViewAppointmentDetailsActivity extends AppCompatActivity {
                         for (DataSnapshot dsuser : dsloc.getChildren()) {
                             for (DataSnapshot dstime : dsuser.getChildren()) {
                                 if (dstime.getKey().equals(appointmentDateTime)) {
-                                    Toast.makeText(getApplicationContext(), dsloc.getKey(), Toast.LENGTH_SHORT).show();
+                                    /*Toast.makeText(getApplicationContext(), dsloc.getKey(),
+                                            Toast.LENGTH_SHORT).show();
                                     Toast.makeText(getApplicationContext(), dsuser.getKey(),
                                             Toast.LENGTH_SHORT).show();
                                     Toast.makeText(getApplicationContext(), dstime.getKey(),
-                                            Toast.LENGTH_SHORT).show();
+                                            Toast.LENGTH_SHORT).show(); */
                                     myRef.child(dsloc.getKey()).child(dsuser.getKey()).child
                                     (dstime.getKey()).child("note").setValue(appointmentNotesTextView.getText().toString());
                                     myRef.child(dsloc.getKey()).child(dsuser.getKey()).child
                                             (dstime.getKey()).child("prescription").setValue(appointmentPrescriptionTextView.getText().toString());
                                     myRef.child(dsloc.getKey()).child(dsuser.getKey()).child
                                             (dstime.getKey()).child("status").setValue("Completed");
+                                    Toast.makeText(getApplicationContext(), "Appointment " +
+                                                    "Completed!",
+                                            Toast.LENGTH_SHORT).show();
 
 
                                 }

@@ -50,35 +50,50 @@ public class PatientViewAppointmentsAdapter extends RecyclerView.Adapter<Patient
     public void onBindViewHolder(PatientViewAppointmentsAdapter.MyViewHolder holder, int position) {
         Appointment currAppointment = appointments.get(position);
         holder.dateTime.setText(currAppointment.getAppointmentDate());
-        if(currAppointment.getAppointmentTime().equals(currAppointment.getAppointmentDoctor())) {
+        holder.user.setText(currAppointment.getUserType());
+        /*if(currAppointment.getAppointmentTime().equals(currAppointment.getAppointmentDoctor())) {
             holder.doctor.setText(currAppointment.getAppointmentPatient());
             holder.user.setText("doctor");
         }
         else {
             holder.doctor.setText(currAppointment.getAppointmentDoctor());
             holder.user.setText("patient");
-        }
-
+        } */
+        holder.doctor.setText(currAppointment.getAppointmentDoctor());
         holder.location.setText(currAppointment.getAppointmentLocation());
         holder.status.setText(currAppointment.getAppointmentStatus());
         //holder.user.setText(curr);
         holder.viewButton.setText("View Appointment");
         holder.actionButton.setText("Cancel");
 
-        if(currAppointment.getAppointmentStatus().equals("N") && holder.user.getText().equals(
-                "patient")){
-            holder.viewButton.setEnabled(false);
-        }
-        else if(currAppointment.getAppointmentStatus().equals("Completed")||currAppointment.getAppointmentStatus().equals("Cancelled") && holder.user.getText().equals(
-                "patient")){
+        if(!currAppointment.getAppointmentStatus().equals("N") && holder.user.getText().equals(
+                "Patient")){
             holder.actionButton.setEnabled(false);
-            holder.viewButton.setEnabled(true);
         }
 
-        if(currAppointment.getAppointmentStatus().equals("Completed")||currAppointment.getAppointmentStatus().equals("Cancelled") && holder.user.getText().equals(
-                "doctor")){
+        if(!currAppointment.getAppointmentStatus().equals("CheckedIn") && holder.user.getText().equals(
+                "Doctor"))
+            holder.viewButton.setEnabled(false);
+
+        if((currAppointment.getAppointmentStatus().equals("Completed")||currAppointment.getAppointmentStatus().equals("Cancelled")) && holder.user.getText().equals(
+                "Doctor")){
             holder.actionButton.setEnabled(false);
         }
+
+        if(currAppointment.getAppointmentStatus().equals("N") && holder.user.getText().equals(
+                "Receptionist")) {
+            holder.viewButton.setText("Check In");
+
+        }
+        else if(!currAppointment.getAppointmentStatus().equals("N") && holder.user.getText().equals(
+                "Receptionist")){
+            holder.viewButton.setText("Check In");
+            holder.viewButton.setEnabled(false);
+            holder.actionButton.setEnabled(false);
+        }
+
+        if(holder.user.getText().equals("Patient"))
+            holder.userType.setText("Doctor");
 
     }
 
@@ -95,7 +110,7 @@ public class PatientViewAppointmentsAdapter extends RecyclerView.Adapter<Patient
 
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         //Define a constructor taking a View as its parameter
-        public TextView dateTime, doctor, location, status, user;
+        public TextView dateTime, doctor, location, status, user, userType;
         Button actionButton, viewButton;
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -106,6 +121,7 @@ public class PatientViewAppointmentsAdapter extends RecyclerView.Adapter<Patient
             status = (TextView) itemView.findViewById(R.id.appointment_status);
             actionButton = (Button) itemView.findViewById(R.id.appointment_action);
             viewButton = (Button) itemView.findViewById(R.id.appointment_view);
+            userType = itemView.findViewById(R.id.user_type_TV);
             actionButton.setOnClickListener(this);
             viewButton.setOnClickListener(this);
         }
@@ -133,10 +149,9 @@ public class PatientViewAppointmentsAdapter extends RecyclerView.Adapter<Patient
                                                     Toast.LENGTH_SHORT).show();
                                             Toast.makeText(context, dsuser.getKey(),
                                                     Toast.LENGTH_SHORT).show(); */
-
-                                        myRef.child(dsloc.getKey()).child(dsuser.getKey()).child
-                                                (dstime.getKey()).child("status").setValue
-                                                ("Cancelled");
+                                            myRef.child(dsloc.getKey()).child(dsuser.getKey()).child
+                                                    (dstime.getKey()).child("status").setValue
+                                                    ("Cancelled");
                                             Toast.makeText(context, "Appointment Cancelled!",
                                                     Toast.LENGTH_SHORT).show();
 
@@ -161,13 +176,56 @@ public class PatientViewAppointmentsAdapter extends RecyclerView.Adapter<Patient
                 /*Toast.makeText(v.getContext(),dateTime.getText()
                          ,
                         Toast.LENGTH_SHORT).show(); */
+                if(!user.getText().toString().equals("Receptionist")) {
+                    Intent intent = new Intent(context, ViewAppointmentDetailsActivity.class);
+                    intent.putExtra("SelectedAppointment", dateTime.getText().toString());
+                    intent.putExtra("UserType", user.getText().toString());
+                    intent.putExtra("User", doctor.getText().toString());
 
-                Intent intent = new Intent(context, ViewAppointmentDetailsActivity.class);
-                intent.putExtra("SelectedAppointment", dateTime.getText().toString());
-                intent.putExtra("UserType",user.getText().toString());
-                intent.putExtra("User",doctor.getText().toString());
+                    context.startActivity(intent);
+                }
+                else{
+                    final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    final DatabaseReference myRef = database.getReference("appointment/");
+                    //myRef.child(aLocation).child(aUser).child(aDateTime).child(  "status").setValue("Cancelled");
 
-                context.startActivity(intent);
+                    //One time use
+                    myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            try {
+                                for (DataSnapshot dsloc : dataSnapshot.getChildren()) {
+                                    //if()
+                                    for (DataSnapshot dsuser : dsloc.getChildren()) {
+                                        for (DataSnapshot dstime : dsuser.getChildren()) {
+                                            if (dstime.getKey().equals(dateTime.getText().toString())) {
+                                            /*Toast.makeText(context, dsloc.getKey(),
+                                                    Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(context, dsuser.getKey(),
+                                                    Toast.LENGTH_SHORT).show(); */
+                                                myRef.child(dsloc.getKey()).child(dsuser.getKey
+                                                ()).child(dstime.getKey()).child("status").setValue
+                                                        ("CheckedIn");
+                                                Toast.makeText(context, "Appointment Checked In!",
+                                                        Toast.LENGTH_SHORT).show();
+
+                                            }
+                                        }
+
+                                    }
+                                }
+
+                            } catch (Exception e) {
+                                Log.e("Data", "Error");
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Log.w("Message", "Something didn't work");
+                        }
+                    });
+                }
                 //String.valueOf(getAdapterPosition())
             }
         }

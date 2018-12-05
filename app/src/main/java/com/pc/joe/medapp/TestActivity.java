@@ -49,7 +49,8 @@ public class TestActivity extends AppCompatActivity implements MyListAdapter.But
                                     status = dstime.child("status").getValue().toString();
                                     reason = dstime.child("reason").getValue().toString();
                                     listOfItem.add(new Appointment(time,dstime.getKey(),
-                                            doctor,"Mickel McMillan", location, status,reason));
+                                            doctor,"Mickel McMillan", location, status,reason,
+                                            "Test"));
                                     /*Toast.makeText(getApplicationContext(),listOfItem.size(),
                                             Toast.LENGTH_LONG).show();*/
                                 }

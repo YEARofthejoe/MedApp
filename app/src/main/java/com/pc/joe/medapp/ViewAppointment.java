@@ -35,9 +35,9 @@ public class ViewAppointment extends AppCompatActivity {
     DoctorAppointmentAdapter doctorAppointmentAdapter;
     ReceptionistAppointmentAdapter receptionistAppointmentAdapter;
     ListView appointmentsListView;
-    TextView userLoggedIn, loc;
+    TextView userLoggedIn, loc, userTypeTextView;
     String username, userType;
-    Button testButton;
+    Button backButton;
     String receptionistLocation;
     RecyclerView appointmentsRecyclerView;
 
@@ -48,9 +48,9 @@ public class ViewAppointment extends AppCompatActivity {
         userLoggedIn = findViewById(R.id.currentuser);
         //appointmentsListView = findViewById(R.id.appointments);
         loc = findViewById(R.id.loc);
-        //testButton = findViewById(R.id.test_button);
+        //backButton = findViewById(R.id.view_appointments_back_button);
         appointmentsRecyclerView = findViewById(R.id.appointments_recycler_view);
-
+        userTypeTextView = findViewById(R.id.user_type_TV);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             //Pass login object
@@ -78,10 +78,12 @@ public class ViewAppointment extends AppCompatActivity {
         if(userType.equals("Patient")){
             //Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
             getPatientAppointments();
+
         }
         else if(userType.equals("Doctor")){
-            Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(),user.getUserName(),Toast.LENGTH_SHORT).show();
             getDoctorAppointments();
+
         }
         else if(userType.equals("Receptionist")){
             getReceptionistAppointments();
@@ -100,12 +102,10 @@ public class ViewAppointment extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {return;}
         }); */
-        /*testButton.setOnClickListener(new View.OnClickListener(){
+        /*backButton.setOnClickListener(new View.OnClickListener(){
             @Override
                 public void onClick(View view) {
-                Intent appointmentSetupIntent = new Intent(ViewAppointment.this, TestActivity.class);
-                appointmentSetupIntent.putExtra("user", user);
-                ViewAppointment.this.startActivity(appointmentSetupIntent);
+                onBackPressed();
             }
         }); */
     }// end OnCreate
@@ -131,7 +131,8 @@ public class ViewAppointment extends AppCompatActivity {
                                     status = dstime.child("status").getValue().toString();
                                     reason = dstime.child("reason").getValue().toString();
                                     appointmentList.add(new Appointment(time,username,doctor,
-                                            user.getFirstName()+" "+user.getLastName(), location, status,reason));
+                                            user.getFirstName()+" "+user.getLastName(), location,
+                                            status,reason,userType));
                                     //Toast.makeText(getApplicationContext(), time,
                                             //Toast.LENGTH_LONG).show();
                                 }
@@ -164,6 +165,7 @@ public class ViewAppointment extends AppCompatActivity {
                 Log.e("Login", "Issue reaching database");
             }
         });
+        //userTypeTextView.setText("Doctor");
     }
 
 
@@ -191,10 +193,10 @@ public class ViewAppointment extends AppCompatActivity {
                                     patient = dsuser.getKey();
                                     status = dstime.child("status").getValue().toString();
                                     reason = dstime.child("reason").getValue().toString();
-                                    appointmentList.add(new Appointment(date,username,username,
+                                    appointmentList.add(new Appointment(date,username,patient,
                                             patient,
                                             dsloc.getKey()
-                                            , status,reason));
+                                            , status,reason, userType));
                                     /*Toast.makeText(getApplicationContext(),
                                             date+patient+status+reason,
                                             Toast.LENGTH_SHORT).show(); */
@@ -207,8 +209,8 @@ public class ViewAppointment extends AppCompatActivity {
                 } catch (Exception e) {
                     Log.e("Data", "Error");
                 }
-                Toast.makeText(getApplicationContext(), "Here",
-                        Toast.LENGTH_SHORT).show();
+                /*Toast.makeText(getApplicationContext(), "Here",
+                        Toast.LENGTH_SHORT).show(); */
                 PatientViewAppointmentsAdapter doctorAppointmentListAdapter =
                         new PatientViewAppointmentsAdapter(getApplicationContext(),
                                 appointmentList,
@@ -230,6 +232,7 @@ public class ViewAppointment extends AppCompatActivity {
                 Log.e("Login", "Issue reaching database");
             }
         });
+        //userTypeTextView.setText("Patient");
     }
 
     public void getReceptionistLocation(){
@@ -266,7 +269,7 @@ public class ViewAppointment extends AppCompatActivity {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference appointmentTableRef = database.getReference("appointment");
 
-        appointmentTableRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        appointmentTableRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 appointmentList = new ArrayList<Appointment>();
@@ -282,8 +285,8 @@ public class ViewAppointment extends AppCompatActivity {
                                     patient = dsuser.getKey();
                                     status = dstime.child("status").getValue().toString();
                                     //reason = dstime.child("reason").getValue().toString();
-                                    appointmentList.add(new Appointment(time, patient, patient,
-                                            patient, doctor, status, ""));
+                                    appointmentList.add(new Appointment(time, username, patient,
+                                            patient, dsloc.getKey(), status, "", userType));
 
                                 }
 
